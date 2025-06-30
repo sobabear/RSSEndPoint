@@ -1,6 +1,7 @@
 FROM node:18-alpine
 
-WORKDIR /app
+RUN mkdir -p /var/app/rss-feed-api
+WORKDIR /var/app/rss-feed-api
 
 COPY package*.json ./
 

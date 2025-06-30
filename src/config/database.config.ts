@@ -14,4 +14,5 @@ export const databaseConfig: TypeOrmModuleOptions = {
   entities: [Country, CountryRss, Category, CategoryRss],
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV !== 'production',
+  schema: 'rss_feed',
 }; 
