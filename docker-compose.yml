@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      DB_HOST: happiness-postgres
+      DB_HOST: localhost
       DB_PORT: 5432
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
@@ -14,8 +14,7 @@ services:
       PORT: 3020
     ports:
       - "0.0.0.0:3020:3020"
-    external_links:
-      - happiness-postgres
+    network_mode: host
 
   rss_nginx:
     image: nginx:alpine
