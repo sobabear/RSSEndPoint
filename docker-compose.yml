@@ -14,9 +14,8 @@ services:
       PORT: 3020
     ports:
       - "0.0.0.0:3020:3020"
-    depends_on:
-      - rss_nginx
-    network_mode: bridge
+    external_links:
+      - happiness-postgres
 
   rss_nginx:
     image: nginx:alpine
@@ -25,7 +24,8 @@ services:
       - "8082:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-    network_mode: bridge
+    depends_on:
+      - rss_app
 
 volumes:
   rss_postgres_data: 
