@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateCategoryRssDto {
   @IsString()
@@ -13,7 +13,11 @@ export class CreateCategoryRssDto {
   @IsNotEmpty()
   domain: string;
 
+  @IsString()
+  @IsOptional()
+  categoryName?: string;
+
   @IsNumber()
-  @IsNotEmpty()
-  categoryId: number;
+  @IsOptional()
+  categoryId?: number;
 } 

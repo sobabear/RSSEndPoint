@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateCountryRssDto {
   @IsString()
@@ -13,7 +13,11 @@ export class CreateCountryRssDto {
   @IsNotEmpty()
   domain: string;
 
+  @IsString()
+  @IsOptional()
+  countryCode?: string;
+
   @IsNumber()
-  @IsNotEmpty()
-  countryId: number;
+  @IsOptional()
+  countryId?: number;
 } 

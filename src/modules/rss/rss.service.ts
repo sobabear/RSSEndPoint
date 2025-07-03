@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Country } from '../../entities/country.entity';
@@ -44,14 +44,36 @@ export class RssService {
   }
 
   async createCountryRss(createCountryRssDto: CreateCountryRssDto) {
-    const { countryId, ...rssData } = createCountryRssDto;
+    const { countryId, countryCode, ...rssData } = createCountryRssDto;
     
-    const country = await this.countryRepository.findOne({
-      where: { id: countryId },
-    });
+    let country: Country | null = null;
+
+    if (countryId) {
+      country = await this.countryRepository.findOne({
+        where: { id: countryId },
+      });
+    } else if (countryCode) {
+      country = await this.countryRepository.findOne({
+        where: { code: countryCode },
+      });
+    } else {
+      // Create a default country if none specified
+      country = await this.countryRepository.findOne({
+        where: { code: 'US' },
+      });
+      
+      if (!country) {
+        // Create default country if it doesn't exist
+        country = this.countryRepository.create({
+          name: 'United States',
+          code: 'US',
+        });
+        country = await this.countryRepository.save(country);
+      }
+    }
     
     if (!country) {
-      throw new Error(`Country with ID ${countryId} not found`);
+      throw new BadRequestException(`Country not found`);
     }
 
     const countryRss = this.countryRssRepository.create({
@@ -63,14 +85,35 @@ export class RssService {
   }
 
   async createCategoryRss(createCategoryRssDto: CreateCategoryRssDto) {
-    const { categoryId, ...rssData } = createCategoryRssDto;
+    const { categoryId, categoryName, ...rssData } = createCategoryRssDto;
     
-    const category = await this.categoryRepository.findOne({
-      where: { id: categoryId },
-    });
+    let category: Category | null = null;
+
+    if (categoryId) {
+      category = await this.categoryRepository.findOne({
+        where: { id: categoryId },
+      });
+    } else if (categoryName) {
+      category = await this.categoryRepository.findOne({
+        where: { name: categoryName },
+      });
+    } else {
+      // Create a default category if none specified
+      category = await this.categoryRepository.findOne({
+        where: { name: 'General' },
+      });
+      
+      if (!category) {
+        // Create default category if it doesn't exist
+        category = this.categoryRepository.create({
+          name: 'General',
+        });
+        category = await this.categoryRepository.save(category);
+      }
+    }
     
     if (!category) {
-      throw new Error(`Category with ID ${categoryId} not found`);
+      throw new BadRequestException(`Category not found`);
     }
 
     const categoryRss = this.categoryRssRepository.create({
