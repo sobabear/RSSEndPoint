@@ -207,12 +207,12 @@ const rssFeeds = {
  */
 function sendToApi(data) {
   return new Promise((resolve, reject) => {
-    const postData = JSON.stringify(data);
-    
-    const options = {
-      hostname: 'localhost',
-      port: 3000,
-      path: '/bulk-import',
+      const postData = JSON.stringify(data);
+  
+  const options = {
+    hostname: 'localhost',
+    port: 8082,
+    path: '/bulk-import',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
