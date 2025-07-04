@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RssController } from './rss.controller';
 import { RssService } from './rss.service';
+import { RssImportService } from './rss-import.service';
 import { Country } from '../../entities/country.entity';
 import { CountryRss } from '../../entities/country-rss.entity';
 import { Category } from '../../entities/category.entity';
@@ -12,6 +13,6 @@ import { CategoryRss } from '../../entities/category-rss.entity';
     TypeOrmModule.forFeature([Country, CountryRss, Category, CategoryRss]),
   ],
   controllers: [RssController],
-  providers: [RssService],
+  providers: [RssService, RssImportService],
 })
 export class RssModule {} 

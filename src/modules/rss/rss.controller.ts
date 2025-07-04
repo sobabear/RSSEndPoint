@@ -1,12 +1,17 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { RssService } from './rss.service';
+import { RssImportService } from './rss-import.service';
 import { RssQueryDto } from '../../dto/rss-query.dto';
 import { CreateCountryRssDto } from '../../dto/create-country-rss.dto';
 import { CreateCategoryRssDto } from '../../dto/create-category-rss.dto';
+import { BulkImportRssDto } from '../../dto/bulk-import-rss.dto';
 
 @Controller('')
 export class RssController {
-  constructor(private readonly rssService: RssService) {}
+  constructor(
+    private readonly rssService: RssService,
+    private readonly rssImportService: RssImportService,
+  ) {}
 
   @Get('country')
   async getAllRssByCountry(@Query('code') countryCode: string) {
@@ -41,5 +46,21 @@ export class RssController {
   @Get('categories')
   async getAllCategories() {
     return this.rssService.getAllCategories();
+  }
+
+  @Post('bulk-import')
+  async bulkImportRss(@Body() bulkImportRssDto: BulkImportRssDto) {
+    return this.rssImportService.bulkImportRssFeeds(bulkImportRssDto);
+  }
+
+  @Post('import-from-github')
+  async importFromGitHub(@Body() body: { repoUrl: string; defaultCategory?: string; defaultCountry?: string }) {
+    const { repoUrl, defaultCategory = 'AI/ML', defaultCountry = 'US' } = body;
+    return this.rssImportService.importFromGitHubRepo(repoUrl, defaultCategory, defaultCountry);
+  }
+
+  @Post('import-predefined-ai')
+  async importPredefinedAI() {
+    return this.rssImportService.importPredefinedAIFeeds();
   }
 } 
