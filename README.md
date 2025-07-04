@@ -44,7 +44,10 @@ docker-compose up -d
    ```
 
 ## Development
-
+0. Set Env
+```bash
+echo 'DB_PASSWORD={your db password}!' > .env && cat .env
+```
 1. Install dependencies:
    ```bash
    npm install
