@@ -4,7 +4,7 @@ import { RssQueryDto } from '../../dto/rss-query.dto';
 import { CreateCountryRssDto } from '../../dto/create-country-rss.dto';
 import { CreateCategoryRssDto } from '../../dto/create-category-rss.dto';
 
-@Controller('rss')
+@Controller('')
 export class RssController {
   constructor(private readonly rssService: RssService) {}
 
