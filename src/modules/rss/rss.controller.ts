@@ -3,6 +3,7 @@ import { RssService } from './rss.service';
 import { RssQueryDto } from '../../dto/rss-query.dto';
 import { CreateCountryRssDto } from '../../dto/create-country-rss.dto';
 import { CreateCategoryRssDto } from '../../dto/create-category-rss.dto';
+import { BulkImportRssDto } from '../../dto/bulk-import-rss.dto';
 
 @Controller('')
 export class RssController {
@@ -41,5 +42,10 @@ export class RssController {
   @Get('categories')
   async getAllCategories() {
     return this.rssService.getAllCategories();
+  }
+
+  @Post('bulk-import')
+  async bulkImportRss(@Body() bulkImportDto: BulkImportRssDto) {
+    return this.rssService.bulkImportRss(bulkImportDto);
   }
 } 

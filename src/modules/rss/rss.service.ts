@@ -7,6 +7,7 @@ import { Category } from '../../entities/category.entity';
 import { CategoryRss } from '../../entities/category-rss.entity';
 import { CreateCountryRssDto } from '../../dto/create-country-rss.dto';
 import { CreateCategoryRssDto } from '../../dto/create-category-rss.dto';
+import { BulkImportRssDto, CountryRssImportDto, CategoryRssImportDto } from '../../dto/bulk-import-rss.dto';
 
 @Injectable()
 export class RssService {
@@ -130,5 +131,140 @@ export class RssService {
 
   async getAllCategories() {
     return this.categoryRepository.find();
+  }
+
+  async bulkImportRss(bulkImportDto: BulkImportRssDto) {
+    const results = {
+      countries: [] as any[],
+      categories: [] as any[],
+      errors: [] as any[],
+    };
+
+    // Import country RSS feeds
+    if (bulkImportDto.countries) {
+      for (const countryData of bulkImportDto.countries) {
+        try {
+          const countryResult = await this.importCountryRssFeeds(countryData);
+          results.countries.push(countryResult);
+        } catch (error) {
+          results.errors.push({
+            type: 'country',
+            data: countryData.countryName,
+            error: error.message,
+          });
+        }
+      }
+    }
+
+    // Import category RSS feeds
+    if (bulkImportDto.categories) {
+      for (const categoryData of bulkImportDto.categories) {
+        try {
+          const categoryResult = await this.importCategoryRssFeeds(categoryData);
+          results.categories.push(categoryResult);
+        } catch (error) {
+          results.errors.push({
+            type: 'category',
+            data: categoryData.categoryName,
+            error: error.message,
+          });
+        }
+      }
+    }
+
+    return results;
+  }
+
+  private async importCountryRssFeeds(countryData: CountryRssImportDto) {
+    // Find or create country
+    let country = await this.countryRepository.findOne({
+      where: { code: countryData.countryCode },
+    });
+
+    if (!country) {
+      country = this.countryRepository.create({
+        name: countryData.countryName,
+        code: countryData.countryCode,
+      });
+      country = await this.countryRepository.save(country);
+    }
+
+    const savedFeeds: CountryRss[] = [];
+    const errors: any[] = [];
+
+    for (const feed of countryData.feeds) {
+      try {
+        // Check if feed already exists
+        const existingFeed = await this.countryRssRepository.findOne({
+          where: { feedUrl: feed.feedUrl, country: { id: country.id } },
+        });
+
+        if (!existingFeed) {
+          const countryRss = this.countryRssRepository.create({
+            ...feed,
+            country,
+          });
+          const savedFeed = await this.countryRssRepository.save(countryRss);
+          savedFeeds.push(savedFeed);
+        }
+      } catch (error) {
+        errors.push({
+          feed: feed.title,
+          error: error.message,
+        });
+      }
+    }
+
+    return {
+      country: country.name,
+      savedFeeds: savedFeeds.length,
+      errors,
+    };
+  }
+
+  private async importCategoryRssFeeds(categoryData: CategoryRssImportDto) {
+    // Find or create category
+    let category = await this.categoryRepository.findOne({
+      where: { name: categoryData.categoryName },
+    });
+
+    if (!category) {
+      category = this.categoryRepository.create({
+        name: categoryData.categoryName,
+      });
+      category = await this.categoryRepository.save(category);
+    }
+
+    const savedFeeds: CategoryRss[] = [];
+    const errors: any[] = [];
+
+    for (const feed of categoryData.feeds) {
+      try {
+        // Check if feed already exists
+        const existingFeed = await this.categoryRssRepository.findOne({
+          where: { feedUrl: feed.feedUrl, category: { id: category.id } },
+        });
+
+        if (!existingFeed) {
+          const categoryRss = this.categoryRssRepository.create({
+            ...feed,
+            category,
+          });
+          const savedFeed = await this.categoryRssRepository.save(categoryRss);
+          savedFeeds.push(savedFeed);
+        }
+      } catch (error) {
+        errors.push({
+          feed: feed.title,
+          error: error.message,
+        });
+      }
+    }
+
+    return {
+      category: category.name,
+      savedFeeds: savedFeeds.length,
+      errors,
+    };
   }
 } 
