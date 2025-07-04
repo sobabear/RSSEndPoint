@@ -93,10 +93,21 @@ export class RssService {
       category = await this.categoryRepository.findOne({
         where: { id: categoryId },
       });
+      if (!category) {
+        throw new BadRequestException(`Category with ID ${categoryId} not found`);
+      }
     } else if (categoryName) {
       category = await this.categoryRepository.findOne({
         where: { name: categoryName },
       });
+      
+      // Auto-create category if it doesn't exist
+      if (!category) {
+        category = this.categoryRepository.create({
+          name: categoryName,
+        });
+        category = await this.categoryRepository.save(category);
+      }
     } else {
       // Create a default category if none specified
       category = await this.categoryRepository.findOne({
@@ -110,10 +121,6 @@ export class RssService {
         });
         category = await this.categoryRepository.save(category);
       }
-    }
-    
-    if (!category) {
-      throw new BadRequestException(`Category not found`);
     }
 
     const categoryRss = this.categoryRssRepository.create({
