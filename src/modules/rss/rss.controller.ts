@@ -42,4 +42,9 @@ export class RssController {
   async getAllCategories() {
     return this.rssService.getAllCategories();
   }
+
+  @Get('all')
+  async getAllCategoryRss() {
+    return this.rssService.getAllCategoryRss();
+  }
 } 

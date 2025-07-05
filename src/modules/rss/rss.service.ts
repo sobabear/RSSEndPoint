@@ -138,4 +138,10 @@ export class RssService {
   async getAllCategories() {
     return this.categoryRepository.find();
   }
+
+  async getAllCategoryRss() {
+    return this.categoryRssRepository.find({
+      relations: ['category'],
+    });
+  }
 } 
